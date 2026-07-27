@@ -13,8 +13,8 @@
 # non-commercial research or evaluation, except by NVIDIA Corporation and
 # its affiliates.
 
-mask_dir: /home/local/eda13/gc29434/phd/intern/DiffOPC/benchmark/baseline/multilevel/mask
-target_dir: /home/local/eda13/gc29434/phd/intern/DiffOPC/benchmark/baseline/multilevel/target
+mask_dir: ./benchmark/baseline/multilevel/mask
+target_dir: ./benchmark/baseline/multilevel/target
 rect_shape_w: 2048
 rect_shape_h: 2048
 min_area: 400
