@@ -156,7 +156,7 @@ class Design:
 
     def image_edges(self, sizeX=2048, sizeY=2048, offsetX=512, offsetY=512):
         """Return the image representation for all images."""
-        edges = self.polygon_edges.copy()
+        edges = [edge.copy() for edge in self.polygon_edges]
         img = np.zeros([sizeX, sizeY], dtype=np.float32)
         for idx in range(len(edges)):
             # idx, how many polygons we have
