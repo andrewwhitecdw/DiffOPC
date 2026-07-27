@@ -128,17 +128,19 @@ def get_metric_value(metric_dict: Dict[str, Any], metric_name: Optional[str]) ->
             "Make sure `optimized_metric` name in `hparams_search` config is correct!"
         )
 
-    metric_value = metric_dict[metric_name].item()
+    metric_value = metric_dict[metric_name]
+    if hasattr(metric_value, "item"):
+        metric_value = metric_value.item()
     log.info(f"Retrieved metric value! <{metric_name}={metric_value}>")
 
     return metric_value
 
 
-def yaml2Cfg(yaml_path: str) -> DictConfig:
-    """Loads a yaml file and returns a DictConfig object.
+def yaml2Cfg(yaml_path: str) -> Dict[str, Any]:
+    """Loads a yaml file and returns a plain dict.
 
     :param yaml_path: The path to the yaml file.
-    :return: A DictConfig object containing the config tree.
+    :return: A dict containing the resolved config tree.
     """
     cfg = OmegaConf.load(yaml_path)
     cfg = OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
