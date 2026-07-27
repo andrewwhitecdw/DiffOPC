@@ -201,7 +201,7 @@ def polygon_vertices_to_edges(vertices, device):
     # vertices = np.array(vertices)
     num_vertices = len(vertices)
     vertices = torch.tensor(vertices, device=device)
-    edges = torch.zeros((num_vertices, 2, 2))  # Assuming 2D space (x, y)
+    edges = torch.zeros((num_vertices, 2, 2), device=device)  # Assuming 2D space (x, y)
     for i in range(num_vertices):
         edges[i, :, 0] = vertices[i]
         edges[i, :, 1] = vertices[(i + 1) % num_vertices]
