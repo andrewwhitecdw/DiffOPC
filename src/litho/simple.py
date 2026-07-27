@@ -207,7 +207,7 @@ class LithoSim(nn.Module):  # Mask -> Aerial -> Printed
         if isinstance(litho_config, dict):
             self._config = litho_config
         elif isinstance(litho_config, str):
-            self._config = yaml2Cfg(config.litho_config)
+            self._config = yaml2Cfg(litho_config)
         elif isinstance(litho_config, DictConfig):
             self._config = OmegaConf.to_container(litho_config, resolve=True, throw_on_missing=True)
         self._device = device
@@ -318,7 +318,7 @@ if __name__ == "__main__":
     # Print the converted Python dictionary
     print(config_dict)
 
-    lithosim = LithoSim(config_dict)
+    lithosim = LithoSim(config_dict, device="cuda")
     image = glp.Design("./benchmark/ICCAD2013/M1_test1.glp").image()
     image = torch.tensor(image > 0.0, dtype=REALTYPE, device="cuda")
     printed = lithosim(image)
