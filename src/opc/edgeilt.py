@@ -67,6 +67,7 @@ class EdgeILTCfg:
             "WeightEPE",
             "WeightPVBL2",
             "WeightPVBand",
+            "WeightL2",
             "StepSize",
             "TileSizeX",
             "TileSizeY",
@@ -87,6 +88,7 @@ class EdgeILTCfg:
             "WeightEPE",
             "WeightPVBL2",
             "WeightPVBand",
+            "WeightL2",
             "StepSize",
         ]
         for key in floatfields:
@@ -460,12 +462,11 @@ def serial():
             cfg["SRAF_FORBIDDEN"],
         )
         begin = time.time()
-        l2, pvb, bestMask, bestMaskIter = solver.solve(
+        l2, pvb, _, bestMask, bestMaskIter = solver.solve(
             target,
             edge_params,
             metadata,
             case_id=idx,
-            curv=None,
             verbose=cfg["VERBOSE"],
         )
         runtime = time.time() - begin
