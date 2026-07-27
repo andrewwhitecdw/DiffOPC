@@ -93,13 +93,11 @@ def draw_image_by_vertices(vertices, vertice_polygon_ids, show_pid=0):
             if idx == show_pid:
                 # Draw the filled polygon on the blank image
                 # result_image = draw_filled_polygon(blank_image, sorted_vertices)
-                blank_image = cv2.fillPoly(
-                    blank_image, [polygon_vertices.numpy().astype(int)], (255, 255, 255)
-                )
+                contour = polygon_vertices.numpy().astype(np.int32).reshape((-1, 1, 2))
+                blank_image = cv2.fillPoly(blank_image, [contour], (255, 255, 255))
         else:
-            blank_image = cv2.fillPoly(
-                blank_image, [polygon_vertices.numpy().astype(int)], (255, 255, 255)
-            )
+            contour = polygon_vertices.numpy().astype(np.int32).reshape((-1, 1, 2))
+            blank_image = cv2.fillPoly(blank_image, [contour], (255, 255, 255))
 
     # Display the result
     # cv2.imshow("Filled Polygon", result_image)
