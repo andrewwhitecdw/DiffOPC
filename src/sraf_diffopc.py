@@ -148,7 +148,8 @@ def solve(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         if len(metric_dict["eval_" + m]) > 0:
             metric_dict[m] = sum(metric_dict["eval_" + m]) / len(metric_dict["eval_" + m])
             log_info += f"avg_{m}: {metric_dict[m]:.1f}; "
-            logger[0].track(metric_dict[m], name=f"{m}")
+            if logger:
+                logger[0].track(metric_dict[m], name=f"{m}")
     log.info(log_info)
 
     return metric_dict, object_dict
