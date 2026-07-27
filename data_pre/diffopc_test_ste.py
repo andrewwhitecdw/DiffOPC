@@ -70,6 +70,8 @@ class CircleCfg:
             "ILTSizeY",
             "ThreshArea",
             "ThreshRange",
+            "LowResFactor",
+            "LowResolution",
         ]
         for key in required:
             assert key in self._config, f"[PixelILT]: Cannot find the config {key}."
@@ -297,7 +299,7 @@ class CircleILT:
             x2, y2 = 1792, 1792
         else:
             raise ValueError
-        x1, y1, x2, y2 = x1 // down_sample, x2 // down_sample, y1 // down_sample, y2 // down_sample
+        x1, y1, x2, y2 = x1 // down_sample, y1 // down_sample, x2 // down_sample, y2 // down_sample
         new_filters[y1:y2, x1:x2] = 1.0
         self._filter = new_filters
 
