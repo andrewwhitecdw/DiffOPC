@@ -23,5 +23,6 @@ pvb_weights=(0.2 0.5 0.7 0.9 1)
 exp_name="pvb_w_sgd"
 
 for pvb_weight in "${pvb_weights[@]}"; do
+    exp_name="pvb_w_sgd_${pvb_weight}"
     $python src/diffopc.py opc.WeightPVBL2=$pvb_weight opc.VISUAL_DEBUG=0 opc.OPT=sgd logger.aim.experiment=$exp_name
 done
