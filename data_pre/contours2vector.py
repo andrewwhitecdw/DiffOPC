@@ -225,7 +225,7 @@ for i in range(0,len(train)):
       
     print("已写完%d"%i)
 for i in range(0,len(val)):
-    lists = all_xulie[i]
+    lists = val[i]
    #  lists+=['padding']*(max_len - len(lists))
     with open('/home/user/LML/self_define/dataset/valid_file.txt', 'a') as file:
        file.write(' '.join(lists)+'\n')
