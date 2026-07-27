@@ -37,11 +37,12 @@ def find_zero_points(tensor, num_points=5, window_size=5):
 
     # For each selected point, extract the surrounding 5x5 window data
     for idx in selected_indices:
-        y, x = idx
-        y_start = max(0, y - window_size // 2)
-        y_end = min(tensor.shape[0], y + window_size // 2 + 1)
-        x_start = max(0, x - window_size // 2)
-        x_end = min(tensor.shape[1], x + window_size // 2 + 1)
+        y, x = int(idx[0].item()), int(idx[1].item())
+        half = window_size // 2
+        y_start = max(0, y - half)
+        y_end = min(tensor.shape[0], y + half + 1)
+        x_start = max(0, x - half)
+        x_end = min(tensor.shape[1], x + half + 1)
         window_data = tensor[y_start:y_end, x_start:x_end]
         results.append((idx, window_data))
 
