@@ -447,12 +447,11 @@ class EdgeILTSrafSolver:
                     mask_cpu = mask.clone().detach().cpu().numpy()
                     all_masks.append({"mask": mask_cpu, "iteration": idx})
 
-            if not self._config["IsInsertSRAF"]:
-                if bestParams is None or bestMask is None or loss < lossMin:
-                    lossMin, l2Min, pvbMin = loss, l2loss, pvband
-                    bestParams = edge_params_clone
-                    bestMask = mask.detach().clone()
-                    bestMaskIter = idx
+            if bestParams is None or bestMask is None or loss < lossMin:
+                lossMin, l2Min, pvbMin = loss, l2loss, pvband
+                bestParams = edge_params_clone
+                bestMask = mask.detach().clone()
+                bestMaskIter = idx
 
             if verbose:
                 print(f"[OPC Iteration {idx}]: L2 = {l2loss.item():.0f}; PVBand: {pvband.item():.0f}")
@@ -524,7 +523,7 @@ def serial():
             cfg["SRAF_FORBIDDEN"],
         )
         begin = time.time()
-        l2, pvb, bestMask, bestMaskIter = solver.solve(
+        l2, pvb, bestParams, bestMask, bestMaskIter, sraf_image = solver.solve(
             target,
             edge_params,
             metadata,
