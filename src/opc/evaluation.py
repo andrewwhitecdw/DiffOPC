@@ -352,7 +352,7 @@ def evaluate(mask, target, litho, device, scale=1, shots=False, verbose=False):
     nshot = shotCount.run(mask, shape=(512, 512)) if shots else -1
     # print(f"Shot counting time: {time.time() - begin:.2f}")
     if verbose:
-        print(f"[{maskfile}]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {nshot:.0f}")
+        print(f"[evaluate]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {nshot:.0f}")
 
     return l2, pvb, epe, nshot
 
