@@ -68,6 +68,7 @@ class EdgeILTCfg:
             "WeightEPE",
             "WeightPVBL2",
             "WeightPVBand",
+            "WeightL2",
             "StepSize",
             "TileSizeX",
             "TileSizeY",
@@ -88,6 +89,7 @@ class EdgeILTCfg:
             "WeightEPE",
             "WeightPVBL2",
             "WeightPVBand",
+            "WeightL2",
             "StepSize",
         ]
         for key in floatfields:
@@ -331,7 +333,7 @@ class EdgeILTSolver:
             epe_loss += D2
         return epe_loss
 
-    def solve(self, target, edge_params, metadata, case_id=1, verbose=0):
+    def solve(self, target, edge_params, metadata, case_id=1, verbose=0, curv=None):
         # Initialize
 
         # Optimizer
@@ -395,8 +397,7 @@ class EdgeILTSolver:
                         mask_cpu = mask.clone().detach().cpu().numpy()
                         all_masks.append({"mask": mask_cpu, "iteration": idx})
                     # print("Insert SRAF!")
-                    seg_length = self._config["SEG_LENGTH"]
-                    new_edge_params, new_metadata = self.init_sraf_params(mask, edge_params, metadata, seg_length)
+                    new_edge_params, new_metadata = self.init_sraf_params(mask, edge_params, metadata)
                     opc_idx = idx
                     # print(f"Insert SRAF at iteration {opc_idx}")
                     break
@@ -481,7 +482,7 @@ def serial():
             cfg["SRAF_FORBIDDEN"],
         )
         begin = time.time()
-        l2, pvb, bestMask, bestMaskIter = solver.solve(
+        l2, pvb, bestParams, bestMask, bestMaskIter = solver.solve(
             target,
             edge_params,
             metadata,
