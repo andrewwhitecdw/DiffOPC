@@ -36,6 +36,9 @@ def create_binary_mask_from_vertices_best_but_edge_wrong(vertices, vertices_poly
     # Initialize the binary mask
     mask = torch.zeros((height, width), dtype=torch.bool, device=device)
 
+    # Initialize the binary mask
+    mask = torch.zeros_like(grid_x, dtype=torch.bool)
+
     # Get the unique polygon IDs
     unique_ids = torch.unique(vertices_polygon_ids)
 
@@ -128,15 +131,15 @@ def create_binary_mask_from_vertices(vertices, vertices_polygon_ids, width, heig
     # Get the unique polygon IDs
     unique_ids = torch.unique(vertices_polygon_ids)
 
-    # Initialize the intersection counter
-    count = torch.zeros_like(grid_x, dtype=torch.int32)
-
     # Iterate over each polygon ID
     for idx in unique_ids:
         # Get the vertices corresponding to the current polygon ID
         polygon_vertices = vertices[vertices_polygon_ids == idx]
         # Create edges by connecting consecutive vertices and closing the polygon
         polygon_edges = torch.cat([polygon_vertices, polygon_vertices[:1]], dim=0)
+
+        # Initialize the intersection counter for the current polygon
+        count = torch.zeros_like(grid_x, dtype=torch.int32)
 
         for i in range(len(polygon_edges) - 1):
             # Calculate the vectors from each point to the edge endpoints
@@ -154,8 +157,8 @@ def create_binary_mask_from_vertices(vertices, vertices_polygon_ids, width, heig
             # Increment the count for points inside the polygon or on the edge
             count += (inside).int()
 
-    # If the count is odd, the point is inside at least one polygon
-    mask = count % 2 == 1
+        # If the count is odd, the point is inside the current polygon
+        mask |= count % 2 == 1
 
     return mask
 
@@ -329,16 +332,10 @@ def create_binary_mask_from_vertices_with_padding(vertices, vertices_polygon_ids
         max_y, _ = torch.max(polygon_vertices[:, 1], dim=0)
 
         # Add padding to the bounding box
-        min_x -= padding
-        max_x += padding
-        min_y -= padding
-        max_y += padding
-
-        # Ensure the padded bounding box is within the image bounds
-        # min_x = max(min_x.item(), 0)
-        # max_x = min(max_x.item(), width - 1)
-        # min_y = max(min_y.item(), 0)
-        # max_y = min(max_y.item(), height - 1)
+        min_x = torch.clamp(min_x - padding, 0, width - 1)
+        max_x = torch.clamp(max_x + padding, 0, width - 1)
+        min_y = torch.clamp(min_y - padding, 0, height - 1)
+        max_y = torch.clamp(max_y + padding, 0, height - 1)
 
         # Create a grid representing points within the padded bounding box of the current polygon
         x = torch.arange(min_x, max_x + 1, dtype=torch.float32, device=device)
