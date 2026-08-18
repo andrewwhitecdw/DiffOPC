@@ -106,7 +106,7 @@ def cfg_eval(cfg_eval_global: DictConfig, tmp_path: Path) -> DictConfig:
 
     This is called by each test which uses the `cfg_eval` arg. Each test generates its own temporary logging path.
 
-    :param cfg_train_global: The input DictConfig object to be modified.
+    :param cfg_eval_global: The input DictConfig object to be modified.
     :param tmp_path: The temporary logging path.
 
     :return: A DictConfig with updated output and log directories corresponding to `tmp_path`.
