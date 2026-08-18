@@ -36,15 +36,22 @@ def create_binary_mask(polygons, width, height, device=None):
     edges = []
     for polygon in polygons:
         edges.append(torch.cat([polygon, polygon[:1]], dim=0))
-    edges = torch.cat(edges, dim=0)
 
     # Initialize the intersection counter
     count = torch.zeros_like(grid_x, dtype=torch.int32)
 
-    for i in range(len(edges) - 1):
+    edge_starts = []
+    edge_ends = []
+    for polygon_edges in edges:
+        edge_starts.append(polygon_edges[:-1])
+        edge_ends.append(polygon_edges[1:])
+    edge_starts = torch.cat(edge_starts, dim=0)
+    edge_ends = torch.cat(edge_ends, dim=0)
+
+    for i in range(len(edge_starts)):
         # Calculate the vectors from each point to the edge endpoints
-        v1 = edges[i] - points
-        v2 = edges[i + 1] - points
+        v1 = edge_starts[i] - points
+        v2 = edge_ends[i] - points
         # Calculate the cross product of v1 and v2
         cross = v1[..., 0] * v2[..., 1] - v1[..., 1] * v2[..., 0]
         # Check if the point is on the edge
