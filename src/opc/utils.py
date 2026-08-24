@@ -434,11 +434,15 @@ def create_binary_mask(polygons, width, height, device=None):
 
     # Initialize the intersection counter
     count = torch.zeros_like(grid_x, dtype=torch.int32)
-    for i in range(len(edges) - 1):
-        if polygon_ids[i] == polygon_ids[i + 1]:
+    edge_start_idx = 0
+    for polygon in polygons:
+        n_edges = len(polygon)
+        for i in range(n_edges):
+            cur = edge_start_idx + i
+            nxt = edge_start_idx + (i + 1) % n_edges
             # Calculate the vectors from each point to the edge endpoints
-            v1 = edges[i] - points
-            v2 = edges[i + 1] - points
+            v1 = edges[cur] - points
+            v2 = edges[nxt] - points
 
             # Calculate the cross product of v1 and v2
             cross = v1[..., 0] * v2[..., 1] - v1[..., 1] * v2[..., 0]
@@ -448,6 +452,7 @@ def create_binary_mask(polygons, width, height, device=None):
             inside = ((v1[..., 0] < 0) & (v2[..., 0] >= 0) & (cross < 0)) | ((v1[..., 0] >= 0) & (v2[..., 0] < 0) & (cross > 0))
             # Increment the count for points inside the polygon or on the edge
             count += (inside | on_edge).int()
+        edge_start_idx += n_edges
     # If the count is odd, the point is inside at least one polygon
     mask = count % 2 == 1
     return mask
@@ -537,7 +542,7 @@ def right_perpendicular_unit_vector(vector):
     if magnitude == 0:
         raise ValueError("Input cannot be a zero vector")
     # Compute the right-hand perpendicular unit vector
-    unit_vector = torch.tensor([y, -x]) / magnitude
+    unit_vector = torch.stack([y, -x]) / magnitude
     return unit_vector
 
 
@@ -748,12 +753,14 @@ def update_seg_next_byid(segment, cur_seg_id, next_id):
 def validate_poly_edge_segments(polygon_edges_segments):
     print(f"Total polygon: {len(polygon_edges_segments)}")
     for pid, poly in enumerate(polygon_edges_segments):
+        last_id = None
         for seg in poly:
             if seg["next"] is not None:
                 last_id = seg["next"]
             if not torch.equal(seg["segment"], torch.round(seg["segment"])):
                 print(f"{seg['id']} is not integer: {seg['segment']}")
 
+        assert last_id is not None, f"Polygon {pid} has no segments with next pointer"
         assert last_id == poly[-1]["id"], f"Last id {last_id} segment last {poly[-1]} not match"
 
 
@@ -1140,13 +1147,12 @@ def adjust_corner_edges(edge_params, corner_edges, direction_vectors):
 
     # print(corner_edges)
     N = edge_params.shape[0]  # Number of edges
-    # adjusted_edges = edge_params.clone().detach()
-    adjusted_edges = edge_params
+    adjusted_edges = edge_params.clone().detach()
     # print(f"direc: {direction_vectors}")
 
     # Adjust the last edge with the first edge to ensure they meet at a corner
     adjusted_edges[-1], adjusted_edges[0], _ = find_intersection_and_adjust(
-        edge_params[-1], edge_params[0], is_line1_vertical(-1)
+        adjusted_edges[-1], adjusted_edges[0], is_line1_vertical(-1)
     )
 
     # Adjust other specified corner edges
@@ -1155,7 +1161,7 @@ def adjust_corner_edges(edge_params, corner_edges, direction_vectors):
         if corner_edges[i]:
             # Adjust this corner edge with the next edge
             adjusted_edges[i], adjusted_edges[i + 1], _ = find_intersection_and_adjust(
-                edge_params[i], edge_params[i + 1], is_line1_vertical(i)
+                adjusted_edges[i], adjusted_edges[i + 1], is_line1_vertical(i)
             )
             i += 2
         else:
