@@ -23,9 +23,9 @@ from itertools import groupby
 
 import cv2
 import matplotlib
-import matplotlib.pyplot as plt
 
 matplotlib.use("agg")
+import matplotlib.pyplot as plt
 import time
 
 import numpy as np
@@ -63,6 +63,7 @@ class Basic:
         if not isinstance(target, torch.Tensor):
             target = torch.tensor(target, dtype=REALTYPE, device=self._device)
         with torch.no_grad():
+            mask = mask.clone()
             mask[mask >= self._thresh] = 1.0
             mask[mask < self._thresh] = 0.0
             if scale != 1:
@@ -1004,6 +1005,7 @@ class EPEChecker:
         if not isinstance(target, torch.Tensor):
             target = torch.tensor(target, dtype=REALTYPE, device=self._device)
         with torch.no_grad():
+            mask = mask.clone()
             mask[mask >= self._thresh] = 1.0
             mask[mask < self._thresh] = 0.0
             if scale != 1:
@@ -1209,9 +1211,10 @@ def adjust_corner_edge_params(edge_params, metadata):
 
 
 def evaluate(mask, target, litho, scale=1, shots=False, verbose=False):
-    test = Basic(litho, 0.5)
-    epeCheck = EPEChecker(litho, 0.5)
-    shotCount = ShotCounter(litho, 0.5)
+    device = mask.device if isinstance(mask, torch.Tensor) else torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    test = Basic(litho, device, thresh=0.5)
+    epeCheck = EPEChecker(litho, device, thresh=0.5)
+    shotCount = ShotCounter(litho, device, thresh=0.5)
 
     l2, pvb = test.run(mask, target, scale=scale)
     epeIn, epeOut = epeCheck.run(mask, target, scale=scale)
